@@ -84,9 +84,9 @@
    - Going live:     ENV = "production" + the live_ token + live price IDs.
    Everything below is wired; you only edit these 4 constants.
    ============================================================ */
-var PADDLE_ENV       = "sandbox";                 // "sandbox" | "production"
-var PADDLE_TOKEN     = "test_775c328e10ee286c32f47f0d9b5"; // Paddle → Developer Tools → Authentication (client-side token)
-var PRICE_ID_MONTHLY = "pri_01kw7xyxa5qjj36ba35756wp8d";  // $9.99/mo (7-day free trial)
+var PADDLE_ENV       = "production";              // "sandbox" | "production"
+var PADDLE_TOKEN     = "live_f77fc792b894eea7649299c1256"; // Paddle → Developer Tools → Authentication (client-side token)
+var PRICE_ID_MONTHLY = "pri_01kwanfdy03wyjs6gcsyv8q88v";  // $9.99/mo (7-day free trial) — live
 var PRICE_ID_YEARLY  = "pri_REPLACE_ME_YEARLY";   // $95/yr price id    (optional; leave as-is to hide the yearly button)
 
 var configured = !/REPLACE_ME/.test(PADDLE_TOKEN) && !/REPLACE_ME/.test(PRICE_ID_MONTHLY);
