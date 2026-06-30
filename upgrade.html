@@ -79,28 +79,36 @@
 <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 <script>
 /* ============================================================
-   PASTE YOUR PADDLE IDs HERE (PAYMENT-SETUP.md Step 4)
-   - While testing: ENV = "sandbox" + the test_ token + sandbox price IDs.
-   - Going live:     ENV = "production" + the live_ token + live price IDs.
-   Everything below is wired; you only edit these 4 constants.
+   PADDLE IDs — edit only these constants.
    ============================================================ */
-var PADDLE_ENV       = "production";              // "sandbox" | "production"
-var PADDLE_TOKEN     = "live_f77fc792b894eea7649299c1256"; // Paddle → Developer Tools → Authentication (client-side token)
-var PRICE_ID_MONTHLY = "pri_01kwanfdy03wyjs6gcsyv8q88v";  // $9.99/mo (7-day free trial) — live
-var PRICE_ID_YEARLY  = "pri_REPLACE_ME_YEARLY";   // $95/yr price id    (optional; leave as-is to hide the yearly button)
+var PADDLE_ENV       = "production";
+var PADDLE_TOKEN     = "live_f77fc792b894eea7649299c1256";
+var PRICE_ID_MONTHLY = "pri_01kwanfdy03wyjs6gcsyv8q88v";  // $9.99/mo (7-day trial)
+var PRICE_ID_YEARLY  = "pri_01kwc96dfx3exhw56gybasy3f6";
+
+/* Chrome extension ID — fill in after store approval so the success page
+   can unlock Pro inside the extension automatically. */
+var EXTENSION_ID     = "REPLACE_ME_EXTENSION_ID";
 
 var configured = !/REPLACE_ME/.test(PADDLE_TOKEN) && !/REPLACE_ME/.test(PRICE_ID_MONTHLY);
 
+function activateExtension(txn) {
+  if (!EXTENSION_ID || /REPLACE_ME/.test(EXTENSION_ID)) return;
+  try {
+    chrome.runtime.sendMessage(EXTENSION_ID, { type: "gl_activate_pro", txn: txn || null }, function (res) {
+      // Ignore errors — extension may not be installed; the user can still use Pro
+      // on devices where they have it installed by re-opening the extension.
+      void res;
+    });
+  } catch (e) {}
+}
+
 function showSuccess(data) {
+  var txn = (data && data.transaction_id) || null;
   document.getElementById("success").style.display = "block";
-  var d = document.getElementById("success-detail");
-  var txn = data && data.transaction_id ? ("Reference: " + data.transaction_id) : "";
-  d.textContent = txn;
-  // Hand the extension a signal it can read on next open. The extension's
-  // popup checks this on a page it controls; for v1 we also stash it here so a
-  // returning user sees the unlocked state. Real entitlement = the Paddle
-  // subscription; harden with a webhook + verify endpoint later (see PRO-BUILD.md).
-  try { localStorage.setItem("gl_pro_checkout", JSON.stringify({ at: Date.now(), ref: data && data.transaction_id || null })); } catch (e) {}
+  document.getElementById("success-detail").textContent = txn ? "Reference: " + txn : "";
+  activateExtension(txn);
+  try { localStorage.setItem("gl_pro_checkout", JSON.stringify({ at: Date.now(), ref: txn })); } catch (e) {}
   document.getElementById("success").scrollIntoView({ behavior: "smooth" });
 }
 
